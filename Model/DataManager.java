@@ -46,6 +46,9 @@ public class DataManager {
         if (!loadData()) {
             createSampleData();
             saveData();
+        } else {
+            // Ensure admin exists if data was loaded
+            ensureAdminExists();
         }
     }
     
@@ -73,6 +76,9 @@ public class DataManager {
             @SuppressWarnings("unchecked")
             List<Student> loadedStudents = (List<Student>) loadObjectFromFile(STUDENTS_FILE);
             students = loadedStudents;
+            
+            // Ensure admin user exists
+            ensureAdminExists();
             
             @SuppressWarnings("unchecked")
             List<Subject> loadedSubjects = (List<Subject>) loadObjectFromFile(SUBJECTS_FILE);
@@ -481,5 +487,30 @@ public class DataManager {
             }
         }
         return count;
+    }
+    
+    // Ensure admin user exists in the student list
+    private void ensureAdminExists() {
+        boolean adminExists = false;
+        
+        // Check if admin exists
+        for (Student student : students) {
+            if (student.getEmail().equals("admin@kmitl.ac.th") && student.isAdmin()) {
+                adminExists = true;
+                break;
+            }
+        }
+        
+        // If admin doesn't exist, add it
+        if (!adminExists) {
+            Student admin = new Student(
+                "69000000", "Mr.", "Admin", "User", 
+                LocalDate.of(1990, 1, 1), "N/A", "admin@kmitl.ac.th", 
+                "", "admin", true
+            );
+            students.add(admin);
+            saveData(); // Save the updated student list
+            System.out.println("Admin user was added to the system.");
+        }
     }
 }
